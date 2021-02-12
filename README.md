@@ -19,6 +19,7 @@ Additional variables that can be used (either as `host_vars`/`group_vars` or via
 |--------------------------------------------------|------------------------------|
 | `aws_vpc_route_table_profile`                    | Boto profile name to be used |
 | `aws_vpc_route_table_default_region`             | Default region to use        |
+| `aws_vpc_route_table_state`             | Default is `present`, possible values: `present` or `absent`. absent deletes the resource        |
 | `aws_vpc_route_table_vpc_filter_additional`      | Additional `key` `val` filter to add to `vpc_filter` and `vpc_name` by default. |
 | `aws_vpc_route_table_instance_filter_additional` | Additional `key` `val` filter to add to `instance_filter` and `instance_name` by default. |
 | `aws_vpc_route_table_eni_filter_additional`      | Additional `key` `val` filter to add to `eni_filter` and `eni_name` by default. |

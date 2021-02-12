@@ -1,0 +1,63 @@
+---
+
+###
+### Asserts
+###
+
+# Assert that required name element is present
+- name: ensure route_tables[x].routes contains name key
+  assert:
+    that:
+      - rt.name is defined
+      - rt.name | length > 0
+    msg: "aws_vpc_route_tables[x].route_tables[y].name not defined, but required"
+
+
+###
+### Gather resources
+###
+
+- name: "Get id of route with name {{ rt.name }}"
+  community.aws.ec2_vpc_route_table_info:
+    aws_access_key: "{{ lookup('ENV', 'AWS_ACCESS_KEY') | default(omit) }}"
+    aws_secret_key: "{{ lookup('ENV', 'AWS_SECRET_KEY') | default(omit) }}"
+    security_token: "{{ lookup('ENV', 'AWS_SECURITY_TOKEN') | default(omit) }}"
+    profile: "{{ aws_vpc_route_table_profile | default(omit) }}"
+    region: "{{ rt.region | default(aws_vpc_route_table_default_region) }}"
+    filters:
+      "tag:Name": "{{ rt.name }}"
+  register: aws_vpc_rt_info
+
+- name: fail if more then one route table was found with given filters (name)
+  assert:
+    that:
+      - aws_vpc_rt_info.route_tables | length <= 1
+    msg: More than one nat gateway was found for given filters
+
+- name: "Set route table id"
+  set_fact:
+    _aws_vpc_rt_id: "{{ aws_vpc_rt_info.route_tables[0].id }}"
+  when:
+    - aws_vpc_rt_info.route_tables | length == 1
+
+
+###
+### Deleting routing table
+###
+
+
+- name: "ensure route table is deleted: {{ rt.name }}"
+  ec2_vpc_route_table:
+    # Fixed values
+    state: absent
+    # Looked-up values
+    route_table_id: "{{ _aws_vpc_rt_id }}"
+    lookup: id
+    # Optional values
+    region: "{{ rt.region | default(aws_vpc_route_table_default_region | default(omit)) }}"
+    aws_access_key: "{{ lookup('ENV', 'AWS_ACCESS_KEY') | default(omit) }}"
+    aws_secret_key: "{{ lookup('ENV', 'AWS_SECRET_KEY') | default(omit) }}"
+    security_token: "{{ lookup('ENV', 'AWS_SECURITY_TOKEN') | default(omit) }}"
+    profile: "{{ aws_vpc_route_table_profile | default(omit) }}"
+  when:
+    - aws_vpc_rt_info.route_tables | length == 1

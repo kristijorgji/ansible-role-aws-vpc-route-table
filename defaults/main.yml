@@ -6,6 +6,8 @@
 
 aws_vpc_route_table_default_region: eu-central-1
 
+aws_vpc_route_table_state: present
+
 # Note: IGW is auto-found by ansible and does not need to be gathered
 aws_vpc_route_table_vpc_filter_additional: []
 aws_vpc_route_table_eni_filter_additional: []

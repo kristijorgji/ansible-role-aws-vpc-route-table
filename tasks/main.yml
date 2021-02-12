@@ -8,3 +8,11 @@
     loop_var: vpc
   with_items:
     - "{{ aws_vpc_route_tables }}"
+  when: aws_vpc_route_table_state == "present"
+
+- include_tasks: delete_vpc_route_tables.yml
+  loop_control:
+    loop_var: vpc
+  with_items:
+    - "{{ aws_vpc_route_tables }}"
+  when: aws_vpc_route_table_state == "absent"
